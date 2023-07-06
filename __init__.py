@@ -1,3 +1,4 @@
+import collections
 from itertools import takewhile
 
 from dict_merger_keep_all import dict_merger
@@ -22,7 +23,6 @@ class MultiKeyIterDict(MultiKeyDict):
             **kwargs: Additional key-value pairs to populate the dictionary.
         """
         super().__init__(initialdata, **kwargs)
-
 
     def nested_items(self):
         """
@@ -62,15 +62,21 @@ class MultiKeyIterDict(MultiKeyDict):
             Tuple: A tuple containing the key and value of the last item.
         """
         alreadydone = []
+        results = []
         for v, k in fla_tu(self.data):
             if len(k) > 1 and k not in alreadydone:
-                qr=list(k)[:-1]
-                if isiter(v := self[qr]):
-                    k = qr
-                    alreadydone.append(k)
-                    yield k, v
+                qr = list(k)[:-1]
+                if isinstance(v2 := self[qr], (dict, collections.defaultdict)):
+                    results.append((list(k), v))
+
+                elif isiter(v2):
+                    alreadydone.append(qr)
+                    results.append((qr, v2))
+                else:
+                    results.append((list(k), v))
             else:
-                yield list(k), v
+                results.append((list(k), v))
+        return results
 
     def nested_value_search(self, value):
         """
@@ -125,4 +131,3 @@ class MultiKeyIterDict(MultiKeyDict):
             dict: The merged dictionary.
         """
         return convert_to_normal_dict_simple(dict_merger(self.to_dict(), *args))
-
