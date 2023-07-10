@@ -6,7 +6,6 @@ from flatten_any_dict_iterable_or_whatsoever import fla_tu
 from mymulti_key_dict import (
     MultiKeyDict,
     convert_to_normal_dict_simple,
-    convert_to_default_dict,
 )
 from isiter import isiter
 
@@ -31,7 +30,7 @@ class MultiKeyIterDict(MultiKeyDict):
         Yields:
             Tuple: A tuple containing the nested key and value.
         """
-        for v, k in fla_tu(self.data):
+        for v, k in fla_tu(self):
             yield list(k), v
 
     def nested_values(self):
@@ -41,7 +40,7 @@ class MultiKeyIterDict(MultiKeyDict):
         Yields:
             Any: The nested value.
         """
-        for v, k in fla_tu(self.data):
+        for v, k in fla_tu(self):
             yield v
 
     def nested_keys(self):
@@ -51,7 +50,7 @@ class MultiKeyIterDict(MultiKeyDict):
         Yields:
             List: The nested key.
         """
-        for v, k in fla_tu(self.data):
+        for v, k in fla_tu(self):
             yield list(k)
 
     def _check_last_item(self):
@@ -63,7 +62,7 @@ class MultiKeyIterDict(MultiKeyDict):
         """
         alreadydone = []
         results = []
-        for v, k in fla_tu(self.data):
+        for v, k in fla_tu(self):
             if len(k) > 1 and k not in alreadydone:
                 qr = list(k)[:-1]
                 if isinstance(v2 := self[qr], (dict, collections.defaultdict)):
@@ -118,7 +117,7 @@ class MultiKeyIterDict(MultiKeyDict):
         Note:
             This method modifies the current dictionary in-place.
         """
-        self.data = convert_to_default_dict(dict_merger(self.to_dict(), *args))
+        self.update(dict_merger(self.to_dict(), *args))
 
     def nested_merge(self, *args):
         """
